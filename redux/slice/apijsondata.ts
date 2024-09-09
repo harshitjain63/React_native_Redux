@@ -1,4 +1,12 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk, createSelector } from '@reduxjs/toolkit';
+import { RootState } from '../store';
+
+type values = {
+  id: string,
+  title: string,
+  body: string,
+  userId: string,
+}
 
 // Action to fetch data from API
 export const fetchData = createAsyncThunk('apidata/fetchData', async () => {
@@ -6,9 +14,20 @@ export const fetchData = createAsyncThunk('apidata/fetchData', async () => {
   return response.json();
 });
 
+const selected = (state: RootState) => state.apidata.data;
+
+export const selectFilteredTasks = createSelector(
+  [selected, (state : RootState , searchQuery: string) => searchQuery],
+  (data : values[], searchQuery) => {
+    return data.filter((item) =>
+      item.title.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }
+);
+
 const initialState = {
   isLoading: false,
-  data: null,
+  data: [],
   isError: false,
 };
 

@@ -1,10 +1,11 @@
 
-import React from 'react';
-import { Button, FlatList, StyleSheet, Text, View } from 'react-native';
-import { Provider, useDispatch, useSelector } from 'react-redux';
-import { RootState, store } from './redux/store';
+import React, { useState } from 'react';
+import { Button, FlatList, StyleSheet, Text, TextInput, View } from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from './redux/store';
 import { fetchData } from './redux/slice/apijsondata';
 import { AnyAction, ThunkDispatch } from '@reduxjs/toolkit';
+import { selectFilteredTasks } from './redux/slice/apijsondata';
 
 type values = {
   id: string,
@@ -23,7 +24,10 @@ function App(): React.JSX.Element {
 
   const dispatch: ThunkDispatch<RootState, void, AnyAction> = useDispatch();
 
-  const states   = useSelector((state) => state);
+  const states = useSelector((state: RootState) => state.apidata);
+
+  const [searchQuery, setSearchQuery] = useState<string>('');
+
 
   const renderItem = ({ item }: { item: values }) => (
     <View style={styles.renderlist}>
@@ -33,20 +37,30 @@ function App(): React.JSX.Element {
     </View>
   );
 
+
+  // Get filtered tasks by passing both state and searchQuery to the selector
+  const filteredTasks = useSelector((state: RootState) =>
+    selectFilteredTasks(state, searchQuery)
+  );
+
   return (
-    <Provider store={store}>
-      <View style={styles.conatiner}>
-        {
-          states.apidata.isLoading ? <Text style={styles.texts}>Isloading...</Text> : null
-        }
-        <Button onPress={() => dispatch(fetchData())} title="Fetch data" />
-        <FlatList
-          data={states.apidata.data}
-          renderItem={renderItem}
-          keyExtractor={item => item.id}
-        />
-      </View>
-    </Provider>
+    <View style={styles.conatiner}>
+      <TextInput
+        style={styles.searchInput}
+        placeholder="Search tasks..."
+        value={searchQuery}
+        onChangeText={setSearchQuery}
+      />
+      {
+        states.isLoading ? <Text style={styles.texts}>Isloading...</Text> : null
+      }
+      <Button onPress={() => dispatch(fetchData())} title="Fetch data" />
+      <FlatList
+        data={filteredTasks}
+        renderItem={renderItem}
+        keyExtractor={item => item.id}
+      />
+    </View>
   );
 }
 
@@ -69,6 +83,15 @@ const styles = StyleSheet.create({
     color: 'black',
     fontSize: 17,
     fontWeight: 'bold',
+  },
+  searchInput: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    padding: 10,
+    marginBottom: 10,
+    borderRadius: 5,
+    backgroundColor: 'grey',
+    color: 'black',
   },
 });
 
