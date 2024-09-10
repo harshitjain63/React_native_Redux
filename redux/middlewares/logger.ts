@@ -1,4 +1,4 @@
-import { Middleware } from "redux";
+import { Middleware } from 'redux';
 
 // A Function which recieves store as an argument
 // return a function from this function (loggingMiddleware) and this function gonna recieve a function called next 

@@ -1,97 +1,72 @@
 
-import React, { useState } from 'react';
-import { Button, FlatList, StyleSheet, Text, TextInput, View } from 'react-native';
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from './redux/store';
-import { fetchData } from './redux/slice/apijsondata';
-import { AnyAction, ThunkDispatch } from '@reduxjs/toolkit';
-import { selectFilteredTasks } from './redux/slice/apijsondata';
+import React from 'react';
+import { StyleSheet, Text } from 'react-native';
+import Form from './components/Form';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import ApiData from './components/ApiData';
+import { Button, Card } from 'react-native-paper';
 
-type values = {
-  id: string,
-  title: string,
-  body: string,
-  userId: string,
-}
 
-// type statevalues = {
-//   isLoading: false,
-//   data: null,
-//   isError: false,
-// };
+const Stack = createNativeStackNavigator();
+
+const HomeScreen = ({ navigation }: { navigation: any }) => {
+  return (
+
+    <Card style={styles.internalContainer}>
+      <Card.Cover source={{ uri: 'https://picsum.photos/700' }} />
+      <Text style={styles.texts}>Welcome to the Home Screen</Text>
+      <Button
+        // title="Go to Form"
+        style={styles.btn}
+        mode="contained"
+        onPress={() => navigation.navigate('Form')}
+      >Go to Form Screen</Button>
+      <Button
+        // title="Go to Api Data"
+        mode="contained"
+        style={styles.btn}
+        onPress={() => navigation.navigate('ApiData')}
+      >Go to Api Data Screen</Button>
+    </Card>
+
+  );
+};
 
 function App(): React.JSX.Element {
 
-  const dispatch: ThunkDispatch<RootState, void, AnyAction> = useDispatch();
-
-  const states = useSelector((state: RootState) => state.apidata);
-
-  const [searchQuery, setSearchQuery] = useState<string>('');
-
-
-  const renderItem = ({ item }: { item: values }) => (
-    <View style={styles.renderlist}>
-      <Text style={styles.texts}>ID : {item.id}</Text>
-      <Text style={styles.texts}>TITLE : {item.title}</Text>
-      <Text style={styles.texts}>BODY : {item.body}</Text>
-    </View>
-  );
-
-
-  // Get filtered tasks by passing both state and searchQuery to the selector
-  const filteredTasks = useSelector((state: RootState) =>
-    selectFilteredTasks(state, searchQuery)
-  );
 
   return (
-    <View style={styles.conatiner}>
-      <TextInput
-        style={styles.searchInput}
-        placeholder="Search tasks..."
-        value={searchQuery}
-        onChangeText={setSearchQuery}
-      />
-      {
-        states.isLoading ? <Text style={styles.texts}>Isloading...</Text> : null
-      }
-      <Button onPress={() => dispatch(fetchData())} title="Fetch data" />
-      <FlatList
-        data={filteredTasks}
-        renderItem={renderItem}
-        keyExtractor={item => item.id}
-      />
-    </View>
+    <NavigationContainer>
+      <Stack.Navigator initialRouteName="Home">
+        <Stack.Screen name="Home" component={HomeScreen} />
+        <Stack.Screen name="Form" component={Form} />
+        <Stack.Screen name="ApiData" component={ApiData} />
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 }
 
 const styles = StyleSheet.create({
-  conatiner: {
-    backgroundColor: 'white',
-    padding: 10,
-    gap: 10,
+  container: {
     flex: 1,
-
-  },
-  renderlist: {
-    borderWidth: 2,
-    padding: 10,
-    gap: 10,
-    borderRadius: 20,
-    margin: 10,
+    padding: 50,
+    gap: 30,
   },
   texts: {
     color: 'black',
-    fontSize: 17,
+    fontSize: 27,
     fontWeight: 'bold',
+    alignSelf: 'center',
+    padding: 15,
   },
-  searchInput: {
-    borderWidth: 1,
-    borderColor: '#ccc',
+  internalContainer: {
+    gap: 10,
     padding: 10,
-    marginBottom: 10,
-    borderRadius: 5,
-    backgroundColor: 'grey',
-    color: 'black',
+    margin: 30,
+  },
+  btn: {
+    margin: 10,
   },
 });
 
